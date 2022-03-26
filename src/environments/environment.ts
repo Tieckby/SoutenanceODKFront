@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  apiLink: "http://localhost:8080",
-  // apiLink: "https://gescabinet-api.herokuapp.com",
+  // apiLink: "http://localhost:8080",
+  apiLink: "https://gescabinet-api.herokuapp.com",
 };
 
 /*
