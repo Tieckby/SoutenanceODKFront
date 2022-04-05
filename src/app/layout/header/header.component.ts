@@ -7,6 +7,7 @@ import {
   Renderer2,
   AfterViewInit,
 } from "@angular/core";
+import { Router } from "@angular/router";
 import { ConfigService } from "src/app/config/config.service";
 import { Role } from "src/app/core/models/role";
 import { AuthService } from "src/app/core/service/auth.service";
@@ -23,13 +24,12 @@ export class HeaderComponent
   implements OnInit, AfterViewInit
 {
   public config: any = {};
-  homePage: string;
-  isNavbarCollapsed = true;
-  defaultFlag: string;
-  isOpenSidebar: boolean;
+  public homePage: string;
+  public isNavbarCollapsed = true;
+  public defaultFlag: string;
+  public isOpenSidebar: boolean;
   public currentUser: any;
-  // cpteDemande: any;
-  // public myAllRDV: any = new MatTableDataSource([]);
+  public profileLink: any;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -37,7 +37,7 @@ export class HeaderComponent
     public elementRef: ElementRef,
     private configService: ConfigService,
     private authService: AuthService,
-    // private restApi: RestApiService
+    private router: Router
   ) {
     super();
   }
@@ -50,13 +50,13 @@ export class HeaderComponent
       this.homePage = "admin/dashboard/main";
     } else if (userRole === Role.PATIENT) {
       this.homePage = "patient/dashboard";
+      this.profileLink = "/patient/settings";
     } else if (userRole === Role.MEDECIN) {
       this.homePage = "doctor/dashboard";
+      this.profileLink = "/doctor/settings";
     } else {
       this.homePage = "/authentication/signin";
     }
-
-    // this.refreshList();
   }
 
   ngAfterViewInit() {
@@ -71,6 +71,11 @@ export class HeaderComponent
         "logo-" + this.config.layout.logo_bg_color
       );
     }
+  }
+
+  goToProfile()
+  {
+    this.router.navigate([this.profileLink]);
   }
 
   //Full Screen View pseudo code
@@ -120,65 +125,7 @@ export class HeaderComponent
       this.renderer.addClass(this.document.body, "submenu-closed");
     }
   }
-
-  // refreshList()
-  // {
-  //   this.restApi.getPersonByUsername(localStorage.getItem("username"), localStorage.getItem("token")).subscribe(
-  //     {
-  //       next: (result: any)=>{
-  //         this.currentUser = result;
-  //         console.log("userrrr", this.currentUser);
-          
-  //         if(this.currentUser.person_type == 'MEDECIN'){
-  //           let postBody = {"idPerson": this.currentUser.idPerson, "person_type": "MEDECIN"};
-          
-  //           //Get all RDV for the current medecin
-  //           this.restApi.getRDVByMedecin(postBody, localStorage.getItem("token")).subscribe(
-  //             {
-  //               next: (result: any) =>{
-  //                 for(let i=0; i<result.length; i++){
-  //                  if(result[i].isValid == null){
-  //                    this.myAllRDV.data.push(result[i])
-  //                  }
-                    
-  //                 }
-  //                 this.cpteDemande = this.myAllRDV.data.length
-  //                 console.log(this.cpteDemande);
-                  
-  //                // this.myAllRDV.data = result;
-  //               }
-  //             }
-  //           ); 
-  //         }
-
-  //         if(this.currentUser.person_type == 'PATIENT'){
-  //           let postBody = {"idPerson": this.currentUser.idPerson, "person_type": "PATIENT"};
-          
-  //           //Get all RDV for the current medecin
-  //           this.restApi.getRDVByPatient(postBody, localStorage.getItem("token")).subscribe(
-  //             {
-  //               next: (result: any) =>{
-  //                 for(let i=0; i<result.length; i++){
-  //                  if(result[i].isValid != null){
-  //                    this.myAllRDV.data.push(result[i])
-  //                  }
-                    
-  //                 }
-  //                 this.cpteDemande = this.myAllRDV.data.length
-  //                 console.log(this.cpteDemande);
-                  
-  //                // this.myAllRDV.data = result;
-  //               }
-  //             }
-  //           ); 
-  //         }
-          
-                
-  //       }
-  //     }
-  //   );
-  // }
-
+  
   logout() {
     this.authService.logout();
   }

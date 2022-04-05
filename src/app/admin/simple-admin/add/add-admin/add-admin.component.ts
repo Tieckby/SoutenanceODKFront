@@ -13,6 +13,7 @@ export class AddAdminComponent implements OnInit {
   adminForm: FormGroup;
   userBody: any;
   loading = false;
+  error: string;
 
   constructor(private fb: FormBuilder, private restApi: RestApiService,
     private router: Router,
@@ -55,19 +56,56 @@ export class AddAdminComponent implements OnInit {
         {"idRole": 2}
       ]
     };
-
-    this.restApi.addNewUser(this.userBody).subscribe(
+    
+    this.restApi.getPersonEmail(this.adminForm.value.email).subscribe(
       {
         next: result =>{
-          this.loading = false;
-          this.resetForm();
-          this.toastr.showSuccessMessage("L'administrateur ajouté avec succès !");
-          this.router.navigate(['/admin/simple-admin/allAdmins']);
-        },
-        error: error =>{
-          this.loading = false;
-          console.log(error);
-          this.toastr.showErrorMessage("Ajout non éffectué !");
+          if(result)
+          {
+            this.loading = false;
+            this.error = "Cet email existe déjà !";
+            return;
+          }
+          this.restApi.getPersonUsername(this.adminForm.value.username).subscribe(
+            {
+              next: second_result=>{
+                if(second_result)
+                {
+                  this.loading = false;
+                  this.error = "Ce nom d'utilisateur existe déjà !";
+                  return;
+                }
+                this.restApi.getPersonTelephone(this.adminForm.value.telephone).subscribe(
+                  {
+                    next: third_result=>{
+                      if(third_result)
+                      {
+                        this.loading = false;
+                        this.error = "Ce numéro de téléphone existe déjà !";
+                        return;
+                      }
+
+                      this.restApi.addNewUser(this.userBody).subscribe(
+                        {
+                          next: result =>{
+                            this.loading = false;
+                            this.resetForm();
+                            this.toastr.showSuccessMessage("L'administrateur ajouté avec succès !");
+                            this.router.navigate(['/admin/simple-admin/allAdmins']);
+                          },
+                          error: error =>{
+                            this.loading = false;
+                            console.log(error);
+                            this.toastr.showErrorMessage("Ajout non éffectué !");
+                          }
+                        }
+                      );
+                    }
+                  }
+                );
+              }
+            }
+          );
         }
       }
     );

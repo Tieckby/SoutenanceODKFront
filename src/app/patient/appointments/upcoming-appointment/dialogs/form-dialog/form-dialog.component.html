@@ -66,9 +66,11 @@
           <mat-form-field class="example-full-width" appearance="outline">
             <mat-label>Médecin</mat-label>
             <mat-select formControlName="medecin">
-              <mat-option *ngFor="let item of allMedecins" [value]="item.idPerson">
-                {{item.nom}} {{item.prenom}} | {{item.specialite.nom}}
-              </mat-option>
+              <ng-container *ngFor="let item of allMedecins">
+                <mat-option *ngIf="item.etat==='ACTIVER' && item.isDelete===false" [value]="item.idPerson">
+                  {{item.nom}} {{item.prenom}} | {{item.specialite.nom}}
+                </mat-option>
+              </ng-container>
             </mat-select>
             <mat-error *ngIf="rdvForm.get('medecin').hasError('required')">
               Veuillez selectionner un Médecin

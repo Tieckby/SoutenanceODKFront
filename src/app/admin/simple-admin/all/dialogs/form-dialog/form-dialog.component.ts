@@ -16,6 +16,7 @@ export class FormDialogComponent implements OnInit {
   public userBody: any;
   public userId: any;
   public loading = false;
+  public error: string;
 
   constructor(
     public dialogRef: MatDialogRef<FormDialogComponent>,
@@ -91,7 +92,7 @@ export class FormDialogComponent implements OnInit {
           {"idRole": 2}
         ]
       };
-      
+
       this.restApi.updateUser(this.userId, this.userBody, localStorage.getItem("token")).subscribe(
         {
           next: result =>{
@@ -105,7 +106,7 @@ export class FormDialogComponent implements OnInit {
             this.toastr.showErrorMessage("Modification non éffectuée !");
           }
         }
-      )
+      );
     }
     else
     {
@@ -126,20 +127,56 @@ export class FormDialogComponent implements OnInit {
         ]
       };
 
-      this.restApi.addNewUser(this.userBody).subscribe(
+      this.restApi.getPersonEmail(this.adminForm.value.email).subscribe(
         {
           next: result =>{
-            this.loading = false;
-            this.toastr.showSuccessMessage("Ajout éffectué avec succès !");
-            this.dialogRef.close();
-          },
-          error: error =>{
-            this.loading = false;
-            console.log(error);
-            this.toastr.showErrorMessage("Ajout non éffectué !");
+            if(result)
+            {
+              this.loading = false;
+              this.error = "Cet email existe déjà !";
+              return;
+            }
+            this.restApi.getPersonUsername(this.adminForm.value.username).subscribe(
+              {
+                next: second_result=>{
+                  if(second_result)
+                  {
+                    this.loading = false;
+                    this.error = "Ce nom d'utilisateur existe déjà !";
+                    return;
+                  }
+                  this.restApi.getPersonTelephone(this.adminForm.value.telephone).subscribe(
+                    {
+                      next: third_result=>{
+                        if(third_result)
+                        {
+                          this.loading = false;
+                          this.error = "Ce numéro de téléphone existe déjà !";
+                          return;
+                        }
+                        this.restApi.addNewUser(this.userBody).subscribe(
+                          {
+                            next: result =>{
+                              this.loading = false;
+                              this.toastr.showSuccessMessage("Ajout éffectué avec succès !");
+                              this.dialogRef.close();
+                            },
+                            error: error =>{
+                              this.loading = false;
+                              console.log(error);
+                              this.toastr.showErrorMessage("Ajout non éffectué !");
+                            }
+                          }
+                        );
+                      }
+                    }
+                  );
+                }
+              }
+            );
           }
         }
-      ); 
+      );
     }
   }
 }

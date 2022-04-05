@@ -55,8 +55,8 @@
               <ul class="menu">
                 <li class="body">
                   <ul class="user_dw_menu">
-                    <li>
-                      <a href="#" onClick="return false;">
+                    <li *ngIf="profileLink">
+                      <a onClick="return false;" (click)="goToProfile()">
                         <mat-icon aria-hidden="false" class="msr-2">person</mat-icon>Profile
                       </a>
                     </li>

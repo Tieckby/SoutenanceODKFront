@@ -3,7 +3,6 @@ import { Router } from "@angular/router";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { AuthService } from "src/app/core/service/auth.service";
 import { Role } from "src/app/core/models/role";
-import { UnsubscribeOnDestroyAdapter } from "src/app/shared/UnsubscribeOnDestroyAdapter";
 
 @Component({
   selector: "app-signin",
@@ -11,7 +10,6 @@ import { UnsubscribeOnDestroyAdapter } from "src/app/shared/UnsubscribeOnDestroy
   styleUrls: ["./signin.component.scss"],
 })
 export class SigninComponent
-  extends UnsubscribeOnDestroyAdapter
   implements OnInit
 {
   authForm: FormGroup;
@@ -23,9 +21,7 @@ export class SigninComponent
     private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService
-  ) {
-    super();
-  }
+  ) {}
 
   ngOnInit() {
     this.authForm = this.formBuilder.group({

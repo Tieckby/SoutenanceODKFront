@@ -17,6 +17,7 @@ export class AddDoctorComponent {
   public allCabinetMedicales: any;
   public allSpecialities: any;
   public loading = false;
+  error: string;
 
   constructor(private fb: FormBuilder, private restApi: RestApiService,
     private router: Router, private toastr: ToasServiceService)
@@ -71,7 +72,6 @@ export class AddDoctorComponent {
       }
     );
   }
-
   onSubmit() {
     this.loading = true;
     this.userBody = {
@@ -96,17 +96,50 @@ export class AddDoctorComponent {
         {"idRole": 3}
       ]
     };
-
-    this.restApi.addNewUser(this.userBody).subscribe(
+    this.restApi.getPersonUsername(this.medecinForm.value.username).subscribe(
       {
         next: result =>{
-          this.loading = false;
-          this.toastr.showSuccessMessage("Médecin ajouté avec succès !");
-          this.router.navigate(['/admin/doctors/allDoctors']);
-        },
-        error: error =>{
-          console.log(error);
-          this.loading = false;
+          if(result){
+            this.loading = false;
+            this.error = "Ce nom d'utilisateur existe déjà !";
+            return;
+          }
+          this.restApi.getPersonTelephone(this.medecinForm.value.telephone).subscribe(
+            {
+              next: second_result =>{
+                if(second_result){
+                  this.loading = false;
+                  this.error = "Ce numéro de téléphone existe déjà !";
+                  return;
+                }
+                this.restApi.getPersonEmail(this.medecinForm.value.email).subscribe(
+                  {
+                    next: third_result =>{
+                      if(third_result){
+                        this.loading = false;
+                        this.error = "Cet email existe déjà !";
+                        return;
+                      }
+
+                      this.restApi.addNewUser(this.userBody).subscribe(
+                        {
+                          next: result =>{
+                            this.loading = false;
+                            this.toastr.showSuccessMessage("Médecin ajouté avec succès !");
+                            this.router.navigate(['/admin/doctors/allDoctors']);
+                          },
+                          error: error =>{
+                            console.log(error);
+                            this.loading = false;
+                          }
+                        }
+                      );
+                    }
+                  }
+                );
+              }
+            }
+          )
         }
       }
     );

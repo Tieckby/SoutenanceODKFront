@@ -40,11 +40,17 @@ export class SettingsComponent implements OnInit {
     this.restApi.updateUserProfile(this.myProfile.username, this.uploadImg, localStorage.getItem("token")).subscribe(
       {
         next: result =>{
+          if(!result)
+          {
+            this.toastr.showWarningMessage("Veuillez changer le nom de votre image !");
+            return;
+          }
+          
           this.toastr.showSuccessMessage("Profile image modifié avec succès !");
           this.refreshPage();
         },
         error: error =>{
-          this.toastr.showWarningMessage("Veuillez ajouter un autre photo !");
+          this.toastr.showWarningMessage("Veuillez choisir une autre photo !");
         }
       }
     );

@@ -22,6 +22,7 @@ export class FormDialogComponent {
   public allSpecialities: any;
   public allCabinetMedicales: any;
   public loading = false;
+  error: string;
 
   constructor(
     public dialogRef: MatDialogRef<FormDialogComponent>,
@@ -187,21 +188,55 @@ export class FormDialogComponent {
         ]
       };
       
-
-      //Add new user
-      this.restApi.addNewUser(this.userBody).subscribe(
+      this.restApi.getPersonUsername(this.medecinForm.value.username).subscribe(
         {
           next: result =>{
-            this.loading = false;
-            this.toastr.showSuccessMessage("Nouveau médecin ajouté avec succès !");
-            this.dialogRef.close();
-          },
-          error: error =>{
-            this.loading = false;
-            this.toastr.showErrorMessage("Ajout non éffectué !")
+            if(result){
+              this.loading = false;
+              this.error = "Ce nom d'utilisateur existe déjà !";
+              return;
+            }
+            this.restApi.getPersonTelephone(this.medecinForm.value.telephone).subscribe(
+              {
+                next: second_result =>{
+                  if(second_result){
+                    this.loading = false;
+                    this.error = "Ce numéro de téléphone existe déjà !";
+                    return;
+                  }
+                  this.restApi.getPersonEmail(this.medecinForm.value.email).subscribe(
+                    {
+                      next: third_result=>{
+                        if(third_result){
+                          this.loading = false;
+                          this.error = "Cet email existe déjà !";
+                          return;
+                        }
+
+                             //Add new user
+                        this.restApi.addNewUser(this.userBody).subscribe(
+                          {
+                            next: result =>{
+                              this.loading = false;
+                              this.toastr.showSuccessMessage("Nouveau médecin ajouté avec succès !");
+                              this.dialogRef.close();
+                            },
+                            error: error =>{
+                              this.loading = false;
+                              this.toastr.showErrorMessage("Ajout non éffectué !")
+                            }
+                          }
+                        );
+                      }
+                    }
+                  )
+                }
+              }
+            )
           }
         }
-      );
+      )
+     
     }
   }
 }
